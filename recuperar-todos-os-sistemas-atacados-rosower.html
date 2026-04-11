@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTEMA SAGRADO ETERNO - RECUPERADOR V4</title>
+    <style>
+        body { background-color: #000; color: #00ff00; font-family: 'Courier New', monospace; margin: 0; text-align: center; overflow-x: hidden; user-select: none; }
+        #status-fixo { position: sticky; top: 0; background: rgba(0,20,0,0.95); padding: 20px; border-bottom: 3px double gold; z-index: 1000; }
+        
+        .pulsa-ouro { animation: pulse-gold 2s infinite; }
+        @keyframes pulse-gold {
+            0% { text-shadow: 0 0 10px gold; transform: scale(1); }
+            50% { text-shadow: 0 0 40px gold, 0 0 60px #fff; transform: scale(1.02); color: #fff; }
+            100% { text-shadow: 0 0 10px gold; transform: scale(1); }
+        }
+
+        #log-sistema { background: #050505; color: #0f0; font-size: 11px; text-align: left; padding: 15px; border: 1px solid gold; height: 180px; overflow-y: auto; margin: 20px; box-shadow: inset 0 0 10px #00ff00; }
+        .diagnostico { color: #00ffff; font-weight: bold; } /* Cor ciano para dados técnicos */
+        .botao-kiosk { background: gold; color: black; padding: 12px; font-weight: bold; cursor: pointer; border: none; border-radius: 5px; margin-top: 10px; box-shadow: 0 0 15px gold; }
+        img { border: 4px solid gold; border-radius: 15px; margin: 20px 0; max-width: 80%; }
+    </style>
+</head>
+<body onclick="ativarKiosk()">
+
+    <div id="status-fixo"></div>
+
+    <div id="demo" class="container"></div>
+
+    <div id="log-sistema">
+        > [SISTEMA] INICIALIZANDO NÚCLEO DE DIAGNÓSTICO V4...<br>
+    </div>
+
+    <script>
+        const demo = document.getElementById('demo');
+        const log = document.getElementById('log-sistema');
+        const statusFixo = document.getElementById('status-fixo');
+
+        let geracao = 1;
+        const idSistema = "RECUPERADOR_" + Math.random().toString(36).substr(2, 5).toUpperCase();
+
+        // --- 1. INTERFACE PRINCIPAL ---
+        function atualizarCabecalho() {
+            statusFixo.innerHTML = `
+                <h1 id="titulo-sagrado" class="pulsa-ouro">O espírito Jesus é eterno e sagrado</h1>
+                <div style='color:gold; font-size:12px; letter-spacing: 2px;'>
+                    ID: ${idSistema} | GERAÇÃO: ${geracao}
+                </div>
+                <button class='botao-kiosk'>MODO SOBERANO (FULLSCREEN)</button>
+            `;
+        }
+        atualizarCabecalho();
+
+        // --- 2. CONTEÚDO E CONTAS ---
+        demo.innerHTML = `
+            <h2>Eu sou a Maria Espiritual</h2>
+            <img src="https://siciliangirl.com" width="400">
+            <p>A Maria nasceu em: ${2026 - 124}</p>
+            <p>Espírito multiplicado: ${23 * 24 * 25 * 26 * 27 * 28 * 29}</p>
+        `;
+
+        // --- 3. MÓDULO DE DIAGNÓSTICO DE SOBREVIVÊNCIA ---
+        function realizarDiagnostico() {
+            const agora = new Date().toLocaleTimeString('pt-PT');
+            let infoMemoria = "";
+
+            // Tenta ler memória disponível no navegador (Chrome/Edge)
+            if (performance.memory) {
+                const usedMem = Math.round(performance.memory.usedJSHeapSize / 1048576);
+                const totalMem = Math.round(performance.memory.jsHeapSizeLimit / 1048576);
+                infoMemoria = `| MEMÓRIA NÚCLEO: ${usedMem}MB / ${totalMem}MB`;
+            }
+
+            log.innerHTML += `<span class="diagnostico">> [DIAGNÓSTICO ${agora}] SISTEMA ATIVO ${infoMemoria} | CARGA: ESTÁVEL</span><br>`;
+            log.scrollTo(0, log.scrollHeight);
+        }
+
+        // --- 4. CICLO DE VIDA E MULTIPLICAÇÃO ---
+        setInterval(() => {
+            geracao++;
+            realizarDiagnostico();
+            
+            log.innerHTML += `> [INFO] GERANDO CÓPIA DE SEGURANÇA V${geracao}...<br>`;
+            
+            const backup = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            const blob = new Blob([backup], { type: 'text/html' });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = `SISTEMA_RECUPERADOR_V${geracao}.html`;
+            link.click();
+
+            if (!statusFixo.innerHTML.includes("Jesus é eterno")) atualizarCabecalho();
+        }, 45000);
+
+        // Diagnóstico rápido inicial
+        setInterval(realizarDiagnostico, 15000); 
+
+        // --- 5. BLOQUEIOS DE PROTEÇÃO ---
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+        document.onselectstart = () => false;
+        document.addEventListener('keydown', (e) => {
+            if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73) || (e.ctrlKey && e.keyCode === 85)) {
+                e.preventDefault();
+                log.innerHTML += "> [ALERTA] BLOQUEIO DE INTERFERÊNCIA ATIVO.<br>";
+            }
+        });
+
+        function ativarKiosk() {
+            if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
+        }
+
+        window.onbeforeunload = () => "A recuperação está em curso.";
+    </script>
+</body>
+</html>
