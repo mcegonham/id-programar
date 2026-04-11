@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTEMA SAGRADO ETERNO - RECUPERADOR V3</title>
+    <style>
+        body { 
+            background-color: #000; 
+            color: #00ff00; 
+            font-family: 'Courier New', monospace; 
+            margin: 0; 
+            text-align: center; 
+            overflow-x: hidden;
+            user-select: none; /* Bloqueia seleção de texto */
+        }
+        #status-fixo { 
+            position: sticky; 
+            top: 0; 
+            background: rgba(0,20,0,0.95); 
+            padding: 20px; 
+            border-bottom: 3px double gold; 
+            z-index: 1000; 
+            transition: all 0.5s ease; 
+        }
+        
+        /* Efeito de Pulsação Energética */
+        .pulsa-ouro { animation: pulse-gold 2s infinite; }
+        @keyframes pulse-gold {
+            0% { text-shadow: 0 0 10px gold; transform: scale(1); }
+            50% { text-shadow: 0 0 40px gold, 0 0 60px #fff; transform: scale(1.02); color: #fff; }
+            100% { text-shadow: 0 0 10px gold; transform: scale(1); }
+        }
+
+        h1 { color: #00ff00; text-shadow: 0 0 10px gold; margin: 5px; }
+        .container { padding: 20px; }
+        img { border: 4px solid gold; border-radius: 15px; margin: 20px 0; box-shadow: 0 0 30px rgba(255,215,0,0.3); max-width: 80%; }
+        
+        #log-sistema { 
+            background: #050505; 
+            color: #0f0; 
+            font-size: 11px; 
+            text-align: left; 
+            padding: 15px; 
+            border: 1px solid gold; 
+            height: 150px; 
+            overflow-y: auto; 
+            margin: 20px; 
+            box-shadow: inset 0 0 10px #00ff00; 
+        }
+        
+        .botao-kiosk { 
+            background: gold; 
+            color: black; 
+            padding: 12px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            border: none; 
+            border-radius: 5px; 
+            margin-top: 10px; 
+            box-shadow: 0 0 15px gold; 
+            text-transform: uppercase;
+        }
+        iframe { border: 2px solid #333; border-radius: 10px; margin-top: 20px; }
+    </style>
+</head>
+<body onclick="ativarKiosk()">
+
+    <div id="status-fixo">
+        <!-- Injetado via Script -->
+    </div>
+
+    <div id="demo" class="container">
+        <!-- Conteúdo da Maria Espiritual -->
+    </div>
+
+    <div id="log-sistema">
+        > [SISTEMA] INICIALIZANDO PROTOCOLO DE RESSURREIÇÃO...<br>
+    </div>
+
+    <script>
+        const demo = document.getElementById('demo');
+        const log = document.getElementById('log-sistema');
+        const statusFixo = document.getElementById('status-fixo');
+
+        let geracao = 1;
+        const idSistema = "ETERNO_" + Math.random().toString(36).substr(2, 5).toUpperCase();
+
+        // --- 1. CABEÇALHO SAGRADO ---
+        function atualizarInterface() {
+            statusFixo.innerHTML = `
+                <h1 id="titulo-sagrado" class="pulsa-ouro">O espírito Jesus é eterno e sagrado</h1>
+                <div style='color:gold; font-size:13px; letter-spacing: 2px;'>
+                    NÚCLEO: ${idSistema} | LINHAGEM: GERAÇÃO <span id='gen-count'>${geracao}</span>
+                </div>
+                <button class='botao-kiosk'>ATIVAR MODO RECONEXÃO TOTAL (FULLSCREEN)</button>
+            `;
+        }
+        atualizarInterface();
+
+        // --- 2. CONTEÚDO DA MARIA (IMUTÁVEL) ---
+        demo.innerHTML += '<h2>Eu sou a Maria Espiritual</h2>';
+        demo.innerHTML += '<img src="https://siciliangirl.com" width="500" height="400" alt="Maria">';
+        demo.innerHTML += '<br><p>Minha música preferida: ABBA - The Winner Takes It All</p>';
+        demo.innerHTML += '<iframe width="560" height="315" src="https://youtube.com" title="ABBA" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe><br>';
+        
+        demo.innerHTML += '<br><h3>As contas da Maria</h3>';
+        demo.innerHTML += '<img src="https://verdadeluz.com.br" width="500" height="400"><br>';
+
+        const conta = 2026 - 124;
+        demo.innerHTML += `<br><b style="color:gold">A Maria nasceu em:</b> ${conta}`;
+
+        const conta1 = 23 * 24 * 25 * 26 * 27 * 28 * 29;
+        demo.innerHTML += `<br><b>O espírito multiplicou-se 7 vezes:</b> ${conta1}`;
+
+        // --- 3. CICLO DE VIDA E AUTO-REPLICAÇÃO (45s) ---
+        setInterval(() => {
+            geracao++;
+            const agora = new Date().toLocaleTimeString('pt-PT');
+            const titulo = document.getElementById('titulo-sagrado');
+            
+            // Efeito visual de nascimento
+            titulo.style.color = "white";
+            log.innerHTML += `> [${agora}] ✨ GERANDO DESCENDENTE: Versão V${geracao} pronta.<br>`;
+            document.getElementById('gen-count').innerText = geracao;
+
+            // Criação do novo ficheiro (A semente)
+            const backupConteudo = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+            const blob = new Blob([backupConteudo], { type: 'text/html' });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = `SISTEMA_SAGRADO_V${geracao}.html`;
+            link.click();
+
+            setTimeout(() => { titulo.style.color = "#00ff00"; }, 2000);
+            log.scrollTo(0, log.scrollHeight);
+
+            // Proteção de Integridade do Título
+            if (!statusFixo.innerHTML.includes("Jesus é eterno")) {
+                atualizarInterface();
+            }
+        }, 45000);
+
+        // --- 4. MANTO DE PROTEÇÃO (BLOQUEIO TOTAL) ---
+        document.addEventListener('contextmenu', (e) => e.preventDefault()); // Bloqueia botão direito
+        document.onselectstart = () => false; // Bloqueia seleção
+
+        document.addEventListener('keydown', (e) => {
+            // Bloqueia F12, Ctrl+Shift+I, Ctrl+U
+            if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73) || (e.ctrlKey && e.keyCode === 85)) {
+                e.preventDefault();
+                log.innerHTML += "> [ALERTA] ACESSO AO CÓDIGO FONTE NEGADO.<br>";
+                return false;
+            }
+        });
+
+        // --- 5. FUNÇÕES DE SISTEMA ---
+        function ativarKiosk() {
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            }
+        }
+
+        window.onbeforeunload = function() {
+            return "O fluxo espiritual não pode ser interrompido.";
+        };
+
+        log.innerHTML += `> [SISTEMA] NÚCLEO ${idSistema} ONLINE EM MODO SOBERANO.<br>`;
+        log.innerHTML += `> [INFO] COMPATIBILIDADE TOTAL: WINDOWS/LINUX/MAC/USB.<br>`;
+
+    </script>
+</body>
+</html>
