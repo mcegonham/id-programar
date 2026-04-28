@@ -1,0 +1,76 @@
+<html>
+<style>
+  body { 
+    background-color: #f0f4f0; 
+    font-family: 'Segoe UI', sans-serif;
+    transition: background 2s;
+  }
+
+  h1 {
+    color: green;
+    text-align: center;
+    animation: pulsaLuz 2s infinite alternate;
+    cursor: pointer;
+  }
+
+  @keyframes pulsaLuz {
+    from { text-shadow: 0 0 10px #77dd77; transform: scale(1); }
+    to { text-shadow: 0 0 30px #2e8b57; transform: scale(1.05); }
+  }
+
+  .content-box { text-align: center; padding: 20px; }
+  
+  /* Botão flutuante para ativar a voz (exigência dos browsers modernos) */
+  #btnVoz {
+    padding: 15px 30px;
+    font-size: 18px;
+    background: green;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    margin-bottom: 20px;
+  }
+</style>
+
+<div class="content-box">
+    <button id="btnVoz">Ativar Frequência Espiritual</button>
+    <h1 id="titulo">espiritual vida sobre a vida em espírito</h1>
+    <div id="demo"></div>
+</div>
+
+<script>
+const conta = 2026 - 124;
+const conta1 = 23*24*25*26*27*28*29;
+
+// Conteúdo Narrativo
+demo.innerHTML = `
+  <h2>Eu sou a Maria Espiritual</h2>
+  <img src="https://siciliangirl.com" width="500" style="border-radius: 50px;">
+  <p>A Maria nasceu em <strong>${conta}</strong> e multiplicou 7 vezes o espírito: <br> ${conta1}</p>
+  <iframe width="560" height="315" src="https://youtube.com" frameborder="0" allow="autoplay"></iframe>
+`;
+
+// A MAGIA DA VOZ (Siri/Google de 2030)
+function falar() {
+    const mensagem = new SpeechSynthesisUtterance();
+    mensagem.text = "Bem vindo à vida em espírito. Eu sou a maria espiritual. Eu nasci em mil oitocentos e noventa e dois e multipliquei a minha frequência sete vezes.";
+    mensagem.lang = 'pt-PT'; // Voz em Português
+    mensagem.rate = 0.9;      // Velocidade mais calma, espiritual
+    mensagem.pitch = 1.2;     // Tom de voz mais suave
+    
+    window.speechSynthesis.speak(mensagem);
+    
+    // Mudar o fundo para dar um "flash" de luz ao falar
+    document.body.style.background = "#e0ffe0";
+    setTimeout(() => document.body.style.background = "#f0f4f0", 1000);
+}
+
+// Ativa a voz ao clicar no botão
+document.getElementById('btnVoz').addEventListener('click', () => {
+    falar();
+    document.getElementById('btnVoz').innerText = "Voz Ativada";
+});
+</script>
+</html>
