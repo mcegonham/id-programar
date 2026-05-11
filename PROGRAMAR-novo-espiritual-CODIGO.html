@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <title>Server Zero-Scale 2030</title>
+    <style>
+        body { 
+            background: #050505; color: #00f2ff; 
+            font-family: 'Orbitron', sans-serif; 
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; 
+            height: 100vh; margin: 0; overflow: hidden;
+        }
+        #server-log { font-size: 0.8rem; color: #444; position: absolute; top: 10px; left: 10px; }
+        #core-value { font-size: 8vw; font-weight: bold; transition: color 0.3s; }
+        .status-blink { animation: blink 1s infinite; margin-top: 20px; text-transform: uppercase; letter-spacing: 2px; }
+        @keyframes blink { 50% { opacity: 0; } }
+h1{color:green; text-align:center;}
+    </style>
+</head>
+<body>
+    <div id="server-log">SYS_CORE_READY: ESCALA_ZERO_SYNC</div>
+    <div id="core-value">0.00</div>
+    <div class="status-blink">Server Live: Local Scale Logic</div>
+<div id="demo"></div>
+    <script>
+        /**
+         * Lógica de Servidor Local (Internal JS Engine)
+         * Simula a flutuação de escala de -100 a +100 e vice-versa
+         */
+        const ServerState = {
+            currentValue: 0,
+            direction: 1, // 1 = Sobe para Positivo, -1 = Desce para Negativo
+            limit: 100,
+            speed: 0.8
+        };
+
+        function processScale() {
+            // Atualiza o estado interno (O "Coração" do Server)
+            ServerState.currentValue += (ServerState.speed * ServerState.direction);
+
+            // Lógica de Inversão de Polaridade (Bounce Logic)
+            if (ServerState.currentValue >= ServerState.limit) {
+                ServerState.direction = -1;
+                console.log("[SERVER] Limite Positivo atingido. Invertendo...");
+            } else if (ServerState.currentValue <= -ServerState.limit) {
+                ServerState.direction = 1;
+                console.log("[SERVER] Limite Negativo atingido. Invertendo...");
+            }
+
+            // "Serve" o dado para a View
+            render(ServerState.currentValue);
+
+            // Ciclo de processamento contínuo
+            requestAnimationFrame(processScale);
+        }
+
+        function render(val) {
+            const display = document.getElementById('core-value');
+            display.innerText = val.toFixed(2);
+            
+            // Feedback Visual de Polaridade
+            if (val > 0) {
+                display.style.color = "#00ff88"; // Positivo (Verde Neon)
+                display.style.textShadow = "0 0 30px #00ff88";
+            } else if (val < 0) {
+                display.style.color = "#ff0055"; // Negativo (Rosa Choque)
+                display.style.textShadow = "0 0 30px #ff0055";
+            } else {
+                display.style.color = "#00f2ff"; // Zero (Ciano)
+            }
+        }
+
+        // Boot do Servidor
+        window.onload = () => {
+            console.log("Iniciando Escala Zero-Negative-Positive...");
+            processScale();
+        };
+demo.innerHTML+='<h1>A espiritualidade no programar.<br><img src="https://hotmart.s3.amazonaws.com/product_pictures/2bd9d4b7-36d4-411d-a112-cbb5ee0944ef/61.png" width="500" height="400"><br><p>A espiritualidade evolução divina.</p></h1>';
+const conta = 2345*23/23;
+
+demo.innerHTML+= conta;
+
+    </script>
+</body>
+</html>
