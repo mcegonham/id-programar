@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Consola de Teste - Gestor de Janelas GUI</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f4f6f9;
+        }
+        .painel-controlo {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .campo-grupo {
+            margin-bottom: 15px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .btn-gui {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .btn-gui:hover {
+            background-color: #0056b3;
+        }
+        .status-log {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-left: 4px solid #6c757d;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="painel-controlo">
+        <h3>Validador de Links via Janela GUI Isolada</h3>
+        <p>Este método ignora restrições de iframe carregando a origem num processo de janela nativo.</p>
+        
+        <div class="campo-grupo">
+            <input type="text" id="urlOrigem" placeholder="Insira o link (ex: bankofchina.com)">
+        </div>
+        
+        <button id="btnAbrirGUI" class="btn-gui">Abrir na Janela GUI Externa</button>
+        
+        <div id="logConsola" class="status-log">Aguardando interação...</div>
+    </div>
+
+    <script>
+        const btnAbrir = document.getElementById('btnAbrirGUI');
+        const inputUrl = document.getElementById('urlOrigem');
+        const logConsola = document.getElementById('logConsola');
+
+        btnAbrir.addEventListener('click', () => {
+            let urlDestino = inputUrl.value.trim();
+
+            if (!urlDestino) {
+                logConsola.innerText = "[ERRO] Por favor, insira um link válido.";
+                return;
+            }
+
+            // Normaliza o protocolo para garantir o carregamento correto da rede
+            if (!/^https?:\/\//i.test(urlDestino)) {
+                urlDestino = 'https://' + urlDestino;
+            }
+
+            logConsola.innerText = `[AÇÃO] A tentar instanciar GUI para: ${urlDestino}`;
+
+            // Configuração da geometria da Janela GUI (Pop-up controlado)
+            const largura = 1024;
+            const altura = 768;
+            const esquerda = (screen.width - largura) / 2;
+            const topo = (screen.height - altura) / 2;
+            
+            const propriedadesGUI = `width=${largura},height=${altura},top=${topo},left=${esquerda},resizable=yes,scrollbars=yes,status=yes`;
+
+            // Abre o link num contexto de janela limpo (Livre de restrições de embutimento)
+            const janelaGUI = window.open(urlDestino, '_blank', propriedadesGUI);
+
+            // Validação de segurança do navegador (Bloqueador de Pop-ups)
+            if (!janelaGUI || janelaGUI.closed || typeof janelaGUI.closed === 'undefined') {
+                logConsola.style.borderLeftColor = "#dc3545";
+                logConsola.innerText = "[BLOQUEADO] O navegador barrou a janela GUI automática. Permita pop-ups para este ficheiro local.";
+            } else {
+                logConsola.style.borderLeftColor = "#28a745";
+                logConsola.innerText = "[SUCESSO] Janela GUI instanciada com permissão total de origem.";
+            }
+        });
+    </script>
+</body>
+</html>
