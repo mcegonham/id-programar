@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consola OSINT - Rastreio Avançado</title>
+    <style>
+        body { font-family: 'Courier New', monospace; background-color: #0d1117; color: #58a6ff; padding: 20px; margin: 0; }
+        .painel { max-width: 700px; margin: 20px auto; border: 1px solid #30363d; padding: 25px; background-color: #161b22; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        h1 { color: #f0883e; border-bottom: 1px solid #30363d; padding-bottom: 10px; font-size: 22px; text-transform: uppercase; margin-top: 0; }
+        .campo { margin-bottom: 20px; }
+        label { display: block; color: #8b949e; margin-bottom: 8px; font-weight: bold; font-size: 14px; }
+        input[type="text"] { width: 100%; padding: 12px; background: #0d1117; border: 1px solid #30363d; color: #c9d1d9; border-radius: 4px; box-sizing: border-box; font-family: inherit; }
+        .botoes { display: flex; gap: 15px; margin-top: 15px; }
+        button { flex: 1; padding: 12px; font-weight: bold; cursor: pointer; border: none; border-radius: 4px; font-family: inherit; font-size: 14px; transition: 0.2s; }
+        .btn-iniciar { background-color: #238636; color: white; }
+        .btn-iniciar:hover { background-color: #2ea043; }
+        .btn-parar { background-color: #da3637; color: white; display: none; }
+        .btn-parar:hover { background-color: #f85149; }
+        .status-container { margin-top: 20px; padding: 15px; background: #0d1117; border-left: 4px solid #8b949e; display: none; }
+        .status-ativo { border-left-color: #238636; color: #3fb950; animation: piscar 1.5s infinite; }
+        .log-terminal { max-height: 150px; overflow-y: auto; background: #000; padding: 10px; margin-top: 15px; border-radius: 4px; font-size: 12px; color: #7ee787; border: 1px solid #30363d; }
+        @keyframes piscar { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="painel">
+    <h1>Consola OSINT - Loop de Rastreio</h1>
+    
+    <div class="campo">
+        <label for="urlIsco">🔗 Alvo / Link Real a Monitorizar:</label>
+        <input type="text" id="urlIsco" placeholder="Ex: noticias.com" value="https://google.com">
+    </div>
+
+    <div class="botoes">
+        <button class="btn-iniciar" id="btnIniciar" onclick="controlarRastreio(true)">▶ Iniciar Monitorização Continua</button>
+        <button class="btn-parar" id="btnParar" onclick="controlarRastreio(false)">🛑 Parar e Descarregar Relatório</button>
+    </div>
+
+    <div class="status-container" id="statusBox">
+        <span id="statusTexto">Sessão Inativa</span>
+        <div class="log-terminal" id="terminal">A aguardar início...</div>
+    </div>
+</div>
+
+<script>
+    let intervaloRastreio = null;
+    let historicoLogs = [];
+    let contadorLoops = 0;
+    let ipsDetetados = new Set();
+    let ficheirosExtraidos = [];
+
+    // SUPER FUNCTION EVAL: Executa dinamicamente a abertura e análise dos IPs rastreados
+    function superEvalAnaliseIP(listaIPs) {
+        if (!listaIPs || listaIPs.length === 0) return;
+        
+        const stringComandoEval = `
+            (function(ips) {
+                let ipsValidos = [...new Set(ips)].filter(ip => !ip.includes('.local'));
+                if (ipsValidos.length === 0) return;
+                
+                const terminal = document.getElementById('terminal');
+                terminal.innerHTML += '<br>[🔥 SUPER EVAL] A abrir rotinas de análise para ' + ipsValidos.length + ' IP(s)...<br>';
+                
+                ipsValidos.forEach(ip => {
+                    let urlAnalise = 'ip-lookup.net' + encodeURIComponent(ip);
+                    window.open(urlAnalise, '_blank');
+                    terminal.innerHTML += '[🔗 EVAL OPEN] Janela de rastreio aberta para: ' + ip + '<br>';
+                });
+            })(arguments);
+        `;
+        
+        eval(stringComandoEval)(listaIPs);
+    }
+
+    // Função OSINT com Bypass de CORS: Contorna o bloqueio do navegador usando pontes públicas
+    async function extrairFicheirosAlvo(url) {
+        if (ficheirosExtraidos.length > 0 && !ficheirosExtraidos.includes("Aviso")) return;
+
+        const proxies = [
+            "workers.dev",
+            "allorigins.win"
+        ];
+        
+        try {
+            const urlModificada = proxies[0] + encodeURIComponent(url);
+            const resposta = await fetch(urlModificada);
+            const htmlConteudo = await resposta.text();
+            
+            const regexFicheiros = /[^\s"'<>]+?\.(pdf|zip|rar|docx|xlsx|pptx|jpg|jpeg|png|txt|csv)/gi;
+            const correspondencias = htmlConteudo.match(regexFicheiros);
+            
+            const regexIPsNoTexto = /\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b/g;
+            const ipsNoTexto = htmlConteudo.match(regexIPsNoTexto);
+            if (ipsNoTexto) {
+                ipsNoTexto.forEach(ip => ipsDetetados.add(ip));
+            }
+            
+            if (correspondencias) {
+                let linksAbsolutos = correspondencias.map(f => {
+                    if (!f.startsWith('http')) {
+                        try { return new URL(f, url).href; } catch(e) { return f; }
+                    }
+                    return f;
+                });
+                
+                ficheirosExtraidos = [...new Set(linksAbsolutos)];
+                const terminal = document.getElementById('terminal');
+                terminal.innerHTML += `[🔓 CORS BYPASS] Sucesso! Extraídos ${ficheirosExtraidos.length} ficheiros do alvo.<br>`;
+            } else {
+                if(ficheirosExtraidos.length === 0) ficheirosExtraidos = ["Nenhum ficheiro estrutural indexado na resposta HTML."];
+            }
+        } catch (e) {
+            try {
+                const urlModificadaAlt = proxies[1] + encodeURIComponent(url);
+                const respostaAlt = await fetch(urlModificadaAlt);
+                const htmlConteudoAlt = await respostaAlt.text();
+                const correspondenciasAlt = htmlConteudoAlt.match(/[^\s"'<>]+?\.(pdf|zip|rar|docx|xlsx|pptx|jpg|jpeg|png|txt|csv)/gi);
+                
+                const ipsNoTextoAlt = htmlConteudoAlt.match(/\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b/g);
+                if (ipsNoTextoAlt) ipsNoTextoAlt.forEach(ip => ipsDetetados.add(ip));
+
+                if (correspondenciasAlt) {
+                    ficheirosExtraidos = [...new Set(correspondenciasAlt)];
+                    document.getElementById('terminal').innerHTML += `[🔓 CORS BYPASS ALT] Sucesso na extração secundária.<br>`;
+                }
+            } catch(erroInterno) {
+                if(ficheirosExtraidos.length === 0) {
+                    ficheirosExtraidos = ["Falha total no Bypass CORS. O site alvo bloqueia tráfego automatizado."];
+                }
+            }
+        }
+    }
+
+    // Captura inicial do WebRTC para descobrir o IP de rede interna
+    function escutarWebRTC() {
+        const RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+        if (!RTCPeerConnection) return;
+        const rtc = new RTCPeerConnection({ iceServers: [] });
+        rtc.createDataChannel('', { reliable: false });
+        rtc.onicecandidate = function (ice) {
+            if (!ice || !ice.candidate || !ice.candidate.candidate) return;
+            const ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9:]+:[a-f0-9:]+)/i;
+            const resultado = ipRegex.exec(ice.candidate.candidate);
+            if (resultado) ipsDetetados.add(resultado[1]);
+        };
+        rtc.createOffer().then(o => rtc.setLocalDescription(o)).catch(()=>{});
+    }
+
+    // Executa a recolha estruturada de dados a cada ciclo do loop
+    function executarLoopRastreio() {
+        contadorLoops++;
+        const carimboTempo = new Date().toLocaleString('pt-PT');
+        const linkAlvo = document.getElementById('urlIsco').value;
+
+        extrairFicheirosAlvo(linkAlvo);
+
+        let logCiclo = `[CICLO #${contadorLoops}] - ${carimboTempo}\n`;
+        logCiclo += ` Link Rastreado: ${linkAlvo}\n`;
+        logCiclo += ` IPs Locais Ativos (WebRTC/Texto): ${ipsDetetados.size > 0 ? Array.from(ipsDetetados).join(' / ') : 'A processar/Bloqueado'}\n`;
+        logCiclo += ` Janela Focada: ${document.hasFocus() ? "SIM" : "NÃO"}\n`;
+        logCiclo += ` User-Agent: ${navigator.userAgent}\n`;
+        logCiclo += ` Resolução do Ecrã: ${window.screen.width}x${window.screen.height}\n`;
+        logCiclo += ` Idioma Sistema: ${navigator.language}\n`;
+        logCiclo += ` Fuso Horário GMT: ${new Date().getTimezoneOffset() / -60}\n`;
+        logCiclo += `------------------------------------------------------------\n`;
+
+        historicoLogs.push(logCiclo);
+
+        const terminal = document.getElementById('terminal');
+        terminal.innerHTML += `[+] Ciclo #${contadorLoops} processado às ${new Date().toLocaleTimeString('pt-PT')}<br>`;
+        terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    // Gere o estado do script (Ativo / Inativo)
+    function controlarRastreio(ativar) {
+        const btnIniciar = document.getElementById('btnIniciar');
+        const btnParar = document.getElementById('btnParar');
+        const statusBox = document.getElementById('statusBox');
+        const statusTexto = document.getElementById('statusTexto');
+        const terminal = document.getElementById('terminal');
+
+        if (ativar) {
+            contadorLoops = 0;
+            historicoLogs = [];
+            ficheirosExtraidos = [];
+            ipsDetetados.clear();
+            escutarWebRTC();
+            
+            historicoLogs.push(`============================================================\n`);
+            historicoLogs.push(`        RELATÓRIO CONSOLA OSINT - MONITORIZAÇÃO EM LOOP    \n`);
+            historicoLogs.push(`============================================================\n`);
+            historicoLogs.push(`Início da Sessão: ${new Date().toLocaleString('pt-PT')}\n\n`);
+
+            btnIniciar.style.display = 'none';
+            btnParar.style.display = 'block';
+            statusBox.style.display = 'block';
+            statusBox.className = 'status-container status-ativo';
+            statusTexto.innerText = "⚡ MONITORIZAÇÃO EM LOOP ATIVA (A recolher dados...)";
+            terminal.innerHTML = "[-] Inicializar sockets internos...<br>[+] Loop SetInterval iniciado (Frequência: 3 segundos).<br>";
+
+            intervaloRastreio = setInterval(executarLoopRastreio, 3000);
+            executarLoopRastreio();
+        } else {
+            clearInterval(intervaloRastreio);
+
+            btnIniciar.style.display = 'block';
+            btnParar.style.display = 'none';
+            statusBox.className = 'status-container';
+            statusTexto.innerText = "Sessão Inativa";
+
+            if (historicoLogs.length > 3) {
+                historicoLogs.push(`\n============================================================\n`);
+                historicoLogs.push(`📂 FICHEIROS ENCONTRADOS / MAPEADOS NO LINK ALVO (CORS BYPASS):\n`);
+                historicoLogs.push(`============================================================\n`);
+                if(ficheirosExtraidos.length > 0) {
+                    ficheirosExtraidos.forEach(f => historicoLogs.push(` -> ${f}\n`));
+                } else {
+                    historicoLogs.push(` Nenhum ficheiro direto indexado nesta sessão.\n`);
+                }
+
+                historicoLogs.push(`\nFim da Sessão: ${new Date().toLocaleString('pt-PT')}\n`);
+                historicoLogs.push(`Total de Loops Executados: ${contadorLoops}\n`);
+                historicoLogs.push(`============================================================\n`);
+
+                // 1. PRIMEIRO: Força o download do ficheiro TXT de forma limpa
+                const conteudoTexto = historicoLogs.join('');
+                const blob = new Blob([conteudoTexto], { type: 'text/plain;charset=utf-8' });
+                const linkDownload = document.createElement('a');
+                
+                linkDownload.href = URL.createObjectURL(blob);
+                linkDownload.download = `relatorio_osint_loop_${new Date().getTime()}.txt`;
+                
+                document.body.appendChild(linkDownload);
+                linkDownload.click();
+                document.body.removeChild(linkDownload);
+                
+                terminal.innerHTML += `<br>[🚀] Relatório TXT gerado e enviado para a pasta de Transferências!`;
+
+                // 2. SEGUNDO: Executa a Super Função Eval com um pequeno atraso (1 segundo)
+                // Isto impede o navegador de bloquear o descarregamento por excesso de ações simultâneas
+                if (ipsDetetados.size > 0) {
+                    setTimeout(() => {
+                        superEvalAnaliseIP(Array.from(ipsDetetados));
+                    }, 1000);
+                }
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
